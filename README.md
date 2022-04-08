@@ -1,5 +1,5 @@
 # Better Discord Notification [![Test Workflow](https://github.com/Retr0-01/better-discord-notification/actions/workflows/discord-notification.yml/badge.svg?branch=main)](https://github.com/Retr0-01/better-discord-notification/actions/workflows/discord-notification.yml)  
-A GitHub actions for sending a better Discord notification embed, which can also be customized.
+A GitHub action for sending a better Discord notification embed, which can also be customized.
 
 ## Usage
 ### Inputs

@@ -1,6 +1,6 @@
 name: 'Better Discord Notification'
 author: 'Retr0-01'
-description: 'Greet someone'
+description: 'A GitHub action for sending a better Discord notification embed, which can also be customized.'
 inputs:
   webhook-url:
     description: 'The Discord webhook URL this notification will be send to.'
@@ -50,3 +50,6 @@ runs:
         url: ${{ inputs.webhook-url }}
         method: 'POST'
         data: '{"content":null,"embeds":[{"title":"${{github.repository}} [${{github.ref_name}}]","description":"${{steps.get_commits.outputs.COMMIT_MESSAGES}}","url":"${{github.event.compare}}","color":${{inputs.embed-color}},"footer":{"text":"${{steps.get_commits.outputs.COMMIT_COUNT}} new commit(s)","icon_url":"${{inputs.footer-icon}}"},"timestamp":"${{steps.get_time.outputs.time}}"}],"username":"${{github.actor}}","avatar_url":"${{fromJson(steps.get_avatar.outputs.response).avatar_url}}"}'
+branding:
+  icon: 'bell'
+  color: 'blue'
