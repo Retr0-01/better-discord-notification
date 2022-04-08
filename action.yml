@@ -1,0 +1,51 @@
+name: 'Better Discord Notification'
+author: 'Retr0-01'
+description: 'Greet someone'
+inputs:
+  webhook-url:
+    description: 'The Discord webhook URL this notification will be send to.'
+    required: true
+  embed-color:
+    description: 'The embed's color.'
+    require: true
+    default: '0'
+  footer-icon:
+    description: 'A small icon to put on the footer. Required in order to show the commit message count.'
+    required: true
+    default: 'https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png'
+runs:
+  using: "composite"
+  steps:
+    - name: Get Current Time
+      uses: josStorer/get-current-time@v2
+      id: get_time
+    - name: Get User Avatar
+      uses: fjogeleit/http-request-action@master
+      id: get_avatar
+      with:
+        url: "https://api.github.com/users/${{ github.actor }}"
+        method: "GET"
+    - name: Get Commits Messages
+      # What we do here:
+      #   - Remove any newlines
+      #   - Replace double quotes with escaped double quotes
+      #   - Replace single quotes with escaped single quotes
+      #   - Get how many commits we have through their ID 
+      id: get_commits
+      run: |
+        commit_messages_string=`${{ join(github.event.commits.*.message, '\n') }}`
+        commit_messages_string=`${commit_messages_string}` | tr '\n' ' '
+        commit_messages_string=${commit_messages_string//\"/\\\"}
+        commit_messages_string=${commit_messages_string//\'/\\\'}
+        echo "::set-output name=COMMIT_MESSAGES::${commit_messages_string}"
+
+        COMMIT_IDS="${{ join(github.event.commits.*.id, ', ') }}"
+        IFS=', ' read -r -a COMMITS_ARRAY <<< "$COMMIT_IDS"
+        COMMITS_COUNT="${#COMMITS_ARRAY[@]}"
+        echo "::set-output name=COMMIT_COUNT::$COMMITS_COUNT"
+    - name: Send Notification
+      uses: fjogeleit/http-request-action@master
+      with:
+        url: ${{ inputs.webhook-url }}
+        method: 'POST'
+        data: '{"content":null,"embeds":[{"title":"${{github.repository}} [${{github.ref_name}}]","description":"${{steps.get_commits.outputs.COMMIT_MESSAGES}}","url":"${{github.event.compare}}","color":${{inputs.embed-color}},"footer":{"text":"${{steps.get_commits.outputs.COMMIT_COUNT}} new commit(s)","icon_url":"${{inputs.footer-icon}}"},"timestamp":"${{steps.get_time.outputs.time}}"}],"username":"${{github.actor}}","avatar_url":"${{fromJson(steps.get_avatar.outputs.response).avatar_url}}"}'
