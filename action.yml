@@ -6,7 +6,7 @@ inputs:
     description: 'The Discord webhook URL this notification will be send to.'
     required: true
   embed-color:
-    description: 'The embed's color.'
+    description: "The embed's color."
     require: true
     default: '0'
   footer-icon:
