@@ -33,7 +33,7 @@ runs:
       #   - Get how many commits we have through their ID 
       id: get_commits
       run: |
-        commit_messages_string='${{ join(github.event.commits.*.message, '\n') }}'
+        commit_messages_string='${{ join(github.event.commits.*.message, '\n') }}' | sed -r "s/[']+/\'/g"
         commit_messages_string='${commit_messages_string}' | tr '\n' ' '
         commit_messages_string=${commit_messages_string//\"/\\\"}
         commit_messages_string=${commit_messages_string//\'/\\\'}
