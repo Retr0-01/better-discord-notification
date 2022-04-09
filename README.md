@@ -1,11 +1,15 @@
-# Better Discord Notification [![Test Workflow](https://github.com/Retr0-01/better-discord-notification/actions/workflows/discord-notification.yml/badge.svg?branch=main)](https://github.com/Retr0-01/better-discord-notification/actions/workflows/discord-notification.yml)  
+# Better Discord Notification 
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/Retr0-01/better-discord-notification?style=flat-square)
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/Retr0-01/better-discord-notification/Test%20Workflow?label=test%20workflow&style=flat-square)](https://github.com/Retr0-01/better-discord-notification/actions/workflows/discord-notification.yml)
+![GitHub](https://img.shields.io/github/license/Retr0-01/better-discord-notification?style=flat-square)  
 A GitHub action for sending a better Discord notification embed, which can also be customized.
 
 ## Usage
-### Inputs
-``webhook-url`` - The Discord webhook URL this notification will be send to.  
-``embed-color`` - The embed's color.  
-``footer-icon`` - A small icon to put on the footer. Required in order to show the commit message count.  
+| Input           | Type   | Description                                                |
+| --------------- | ------ | ---------------------------------------------------------- |
+| ``webhook-url`` | string | The Discord webhook URL this notification will be send to. |
+| ``embed-color`` | int    | The embed's color, in decimal form.                        |
+| ``footer-icon`` | string | A small icon to put on the footer.                         |
 
 ### Example
 ```yml
