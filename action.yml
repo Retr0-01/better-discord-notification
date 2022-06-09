@@ -32,18 +32,11 @@ runs:
       #   - Get how many commits we have through their unique commit ID. 
       id: get_commits
       run: |
-        COMMIT_MESSAGES="${{ join(github.event.commits.*.message, '\n') }}"
-
-        if [ ${#COMMIT_MESSAGES} -gt 1900 ]; then
-          COMMIT_MESSAGES="$(echo "$COMMIT_MESSAGES" | cut -c 1-1900)"
-          COMMIT_MESSAGES+="..."
-        fi
-
         COMMIT_IDS="${{ join(github.event.commits.*.id, ', ') }}"
         IFS=', ' read -r -a COMMITS_ARRAY <<< "$COMMIT_IDS"
         COMMITS_COUNT="${#COMMITS_ARRAY[@]}"
 
-        echo "::set-output name=COMMIT_MESSAGE::${COMMIT_MESSAGES}"
+        echo "::set-output name=COMMIT_MESSAGE::${{ join(github.event.commits.*.message, '\n') }}"
         echo "::set-output name=COMMIT_COUNT::$COMMITS_COUNT"
       shell: bash
     - name: Send Notification
