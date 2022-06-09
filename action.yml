@@ -27,21 +27,16 @@ runs:
         method: "GET"
     - name: Get Commits Messages
       # What we do here:
-      #   - Remove any newlines
-      #   - Replace double quotes with escaped double quotes
-      #   - Replace single quotes with escaped single quotes
-      #   - Get how many commits we have through their ID 
+      #   - Get and seperate all commit messages with a newline.
+      #   - If the commit message are too big, cut it down.
+      #   - Get how many commits we have through their unique commit ID. 
       id: get_commits
       run: |
-        commit_messages_string='${{ join(github.event.commits.*.message, '\n') }}'
-        commit_messages_string='${commit_messages_string}' | tr '\n' ' '
-        commit_messages_string=${commit_messages_string//\"/\\\"}
-        commit_messages_string=${commit_messages_string//\'/\\\'}
-        echo "::set-output name=COMMIT_MESSAGES::${commit_messages_string}"
-
         COMMIT_IDS="${{ join(github.event.commits.*.id, ', ') }}"
         IFS=', ' read -r -a COMMITS_ARRAY <<< "$COMMIT_IDS"
         COMMITS_COUNT="${#COMMITS_ARRAY[@]}"
+
+        echo "::set-output name=COMMIT_MESSAGE::${{ join(github.event.commits.*.message, '\n') }}"
         echo "::set-output name=COMMIT_COUNT::$COMMITS_COUNT"
       shell: bash
     - name: Send Notification
@@ -49,7 +44,7 @@ runs:
       with:
         url: ${{ inputs.webhook-url }}
         method: 'POST'
-        data: '{"content":null,"embeds":[{"title":"${{github.repository}} [${{github.ref_name}}]","description":"${{steps.get_commits.outputs.COMMIT_MESSAGES}}","url":"${{github.event.compare}}","color":${{inputs.embed-color}},"footer":{"text":"${{steps.get_commits.outputs.COMMIT_COUNT}} new commit(s)","icon_url":"${{inputs.footer-icon}}"},"timestamp":"${{steps.get_time.outputs.time}}"}],"username":"${{github.actor}}","avatar_url":"${{fromJson(steps.get_avatar.outputs.response).avatar_url}}"}'
+        data: '{"content":null,"embeds":[{"title":"${{github.repository}} [${{github.ref_name}}]","description":"${{steps.get_commits.outputs.COMMIT_MESSAGE}}","url":"${{github.event.compare}}","color":${{inputs.embed-color}},"footer":{"text":"${{steps.get_commits.outputs.COMMIT_COUNT}} new commit(s)","icon_url":"${{inputs.footer-icon}}"},"timestamp":"${{steps.get_time.outputs.time}}"}],"username":"${{github.actor}}","avatar_url":"${{fromJson(steps.get_avatar.outputs.response).avatar_url}}"}'
 branding:
   icon: 'bell'
   color: 'blue'

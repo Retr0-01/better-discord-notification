@@ -8,7 +8,7 @@ A GitHub action for sending a better Discord notification embed, which can also 
 | Input           | Type   | Description                                                |
 | --------------- | ------ | ---------------------------------------------------------- |
 | ``webhook-url`` | string | The Discord webhook URL this notification will be send to. |
-| ``embed-color`` | int    | The embed's color, in decimal form.                        |
+| ``embed-color`` | int    | The embed's color, in decimal form. MUST be quoted like the example.                        |
 | ``footer-icon`` | string | A small icon to put on the footer.                         |
 
 ### Example
