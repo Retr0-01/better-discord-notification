@@ -43,7 +43,7 @@ runs:
         IFS=', ' read -r -a COMMITS_ARRAY <<< "$COMMIT_IDS"
         COMMITS_COUNT="${#COMMITS_ARRAY[@]}"
 
-        echo "::set-output name=COMMIT_MESSAGE::$COMMIT_MESSAGES"
+        echo "::set-output name=COMMIT_MESSAGE::{$COMMIT_MESSAGES}"
         echo "::set-output name=COMMIT_COUNT::$COMMITS_COUNT"
       shell: bash
     - name: Send Notification
