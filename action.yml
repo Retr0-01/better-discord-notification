@@ -27,15 +27,14 @@ runs:
         method: "GET"
     - name: Get Commits Messages
       # What we do here:
-      #   - Remove any newlines
-      #   - Replace double quotes with escaped double quotes
-      #   - If the commit message are too big, cut them down.
+      #   - Get and seperate all commit messages with a newline.
+      #   - If the commit message are too big, cut it down.
       #   - Get how many commits we have through their unique commit ID. 
       id: get_commits
       run: |
-        COMMIT_MESSAGES="${{ join(github.event.commits.*.message, '\n') }}" | sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g'
+        COMMIT_MESSAGES="${{ join(github.event.commits.*.message, '\n') }}"
 
-        if [ -n $COMMIT_MESSAGES ] && [ ${#COMMIT_MESSAGES} -gt 1900 ]; then
+        if [ ${#COMMIT_MESSAGES} -gt 1900 ]; then
           COMMIT_MESSAGES="$(echo "$COMMIT_MESSAGES" | cut -c 1-1900)"
           COMMIT_MESSAGES+="..."
         fi
