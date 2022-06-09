@@ -1,10 +1,10 @@
-name: Test Workflow
+name: Test Workflow (Dev)
 
-# Only deploy the main branch.
+# Only deploy the dev branch.
 on:
   push:
       branches:
-        - main
+        - dev
 
 jobs:
   test_discord_notification:
@@ -12,7 +12,7 @@ jobs:
     name: Test Notification
     steps:
       - name: Send Notification
-        uses: Retr0-01/better-discord-notification@main
+        uses: Retr0-01/better-discord-notification@dev
         with:
           webhook-url: ${{ secrets.CI_DISCORD_WEBHOOK_PUBLIC }}
           embed-color: '3093151'
