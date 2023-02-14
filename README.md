@@ -1,6 +1,6 @@
 # Better Discord Notification 
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/Retr0-01/better-discord-notification?style=flat-square)
-[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/Retr0-01/better-discord-notification/discord-notification.yml?branch=main&label=test%20workflow&style=flat-square)](https://github.com/Retr0-01/better-discord-notification/actions/workflows/discord-notification.yml)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/Retr0-01/better-discord-notification/test-notification.yml?branch=main&label=test%20workflow&style=flat-square)](https://github.com/Retr0-01/better-discord-notification/actions/workflows/discord-notification.yml)
 ![GitHub](https://img.shields.io/github/license/Retr0-01/better-discord-notification?style=flat-square)  
 A GitHub action for sending an enhanced, fully customizable, Discord notification embed.
 
