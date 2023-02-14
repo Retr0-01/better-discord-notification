@@ -1,10 +1,6 @@
 name: Test Workflow
 
-# Only deploy the main branch.
-on:
-  push:
-      branches:
-        - main
+on: [push]
 
 jobs:
   test_discord_notification:

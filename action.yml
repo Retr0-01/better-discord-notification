@@ -16,35 +16,46 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Get Current Time
-      uses: josStorer/get-current-time@master
-      id: get_time
-    - name: Get User Avatar
-      uses: fjogeleit/http-request-action@master
-      id: get_avatar
-      with:
-        url: "https://api.github.com/users/${{ github.actor }}"
-        method: "GET"
-    - name: Get Commits Messages
+    - name: Process Commits
       # What we do here:
       #   - Get and seperate all commit messages with a newline.
       #   - If the commit message are too big, cut it down.
-      #   - Get how many commits we have through their unique commit ID. 
-      id: get_commits
+      #   - Get how many commits we have through their unique commit ID.
+      # We also check to see if we have an actual commit in our hands, in case
+      # the workflow was triggered by another push event, e.g. pushing a branch. 
+      id: process_commits
       run: |
         COMMIT_IDS="${{ join(github.event.commits.*.id, ', ') }}"
         IFS=', ' read -r -a COMMITS_ARRAY <<< "$COMMIT_IDS"
         COMMITS_COUNT="${#COMMITS_ARRAY[@]}"
 
-        echo "::set-output name=COMMIT_MESSAGE::${{ join(github.event.commits.*.message, '\n') }}"
-        echo "::set-output name=COMMIT_COUNT::$COMMITS_COUNT"
+        echo "COMMIT_MESSAGE=${{ join(github.event.commits.*.message, '\n') }}" >> $GITHUB_OUTPUT
+        echo "COMMIT_COUNT=$COMMITS_COUNT" >> $GITHUB_OUTPUT
+
+        if [ $COMMITS_COUNT == "0" ]; then
+          echo "SHOULD_CONTINUE=false" >> $GITHUB_OUTPUT
+        else
+          echo "SHOULD_CONTINUE=true" >> $GITHUB_OUTPUT
+        fi
       shell: bash
+    - name: Get Current Time
+      if: steps.process_commits.outputs.SHOULD_CONTINUE == 'true'
+      uses: josStorer/get-current-time@master
+      id: get_time
+    - name: Get User Avatar
+      if: steps.process_commits.outputs.SHOULD_CONTINUE == 'true'
+      uses: fjogeleit/http-request-action@master
+      id: get_avatar
+      with:
+        url: "https://api.github.com/users/${{ github.actor }}"
+        method: "GET"
     - name: Send Notification
+      if: steps.process_commits.outputs.SHOULD_CONTINUE == 'true'
       uses: fjogeleit/http-request-action@master
       with:
         url: ${{ inputs.webhook-url }}
         method: 'POST'
-        data: '{"content":null,"embeds":[{"title":"${{github.repository}} [${{github.ref_name}}]","description":"${{steps.get_commits.outputs.COMMIT_MESSAGE}}","url":"${{github.event.compare}}","color":${{inputs.embed-color}},"footer":{"text":"${{steps.get_commits.outputs.COMMIT_COUNT}} new commit(s)","icon_url":"${{inputs.footer-icon}}"},"timestamp":"${{steps.get_time.outputs.time}}"}],"username":"${{github.actor}}","avatar_url":"${{fromJson(steps.get_avatar.outputs.response).avatar_url}}"}'
+        data: '{"content":null,"embeds":[{"title":"${{github.repository}} [${{github.ref_name}}]","description":"${{steps.process_commits.outputs.COMMIT_MESSAGE}}","url":"${{github.event.compare}}","color":${{inputs.embed-color}},"footer":{"text":"${{steps.process_commits.outputs.COMMIT_COUNT}} new commit(s)","icon_url":"${{inputs.footer-icon}}"},"timestamp":"${{steps.get_time.outputs.time}}"}],"username":"${{github.actor}}","avatar_url":"${{fromJson(steps.get_avatar.outputs.response).avatar_url}}"}'
 branding:
   icon: 'bell'
   color: 'blue'
