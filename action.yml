@@ -41,14 +41,9 @@ runs:
           SHOULD_CONTINUE='true'
         fi
 
-        echo "COMMIT_MESSAGE=$COMMIT_MESSAGE" >> $GITHUB_OUTPUT
+        echo "COMMIT_MESSAGE=$COMMIT_MESSAGE" | sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' >> $GITHUB_OUTPUT
         echo "COMMITS_COUNT=$COMMITS_COUNT" >> $GITHUB_OUTPUT
         echo "SHOULD_CONTINUE=$SHOULD_CONTINUE" >> $GITHUB_OUTPUT
-
-        echo Printing output vars...
-        echo Commit count: $COMMITS_COUNT
-        echo Commit message: $COMMIT_MESSAGE
-        echo Should continue: $SHOULD_CONTINUE
       shell: bash
     - name: Get Current Time
       if: steps.process_commits.outputs.SHOULD_CONTINUE == 'true'
