@@ -27,20 +27,28 @@ runs:
       #   - Get how many commits we have through their unique commit ID.
       #   - Check if we have an actual commit push and not something else (e.g. branch push).
       #   - Check if our current branch is marked as hidden and the user wants to hide hidden branches.
+      #   - Set all needed job outputs.
       id: process_commits
       run: |
         COMMIT_IDS="${{ join(github.event.commits.*.id, ', ') }}"
         IFS=', ' read -r -a COMMITS_ARRAY <<< "$COMMIT_IDS"
         COMMITS_COUNT="${#COMMITS_ARRAY[@]}"
+        COMMIT_MESSAGE="${{ join(github.event.commits.*.message, '\n') }}"
 
-        echo "COMMIT_MESSAGE=${{ join(github.event.commits.*.message, '\n') }}" >> $GITHUB_OUTPUT
-        echo "COMMIT_COUNT=$COMMITS_COUNT" >> $GITHUB_OUTPUT
-
-        if [[ $COMMITS_COUNT == "0" ]] || [[ ${{ contains(github.ref_name, 'hidden/') }} && ${{ inputs.ignore-hidden }} == true ]]; then
-          echo "SHOULD_CONTINUE=false" >> $GITHUB_OUTPUT
+        if $COMMITS_COUNT == "0" || ${{ contains(github.ref_name, 'hidden/') }} && ${{ inputs.ignore-hidden }} == true; then
+          SHOULD_CONTINUE='false'
         else
-          echo "SHOULD_CONTINUE=true" >> $GITHUB_OUTPUT
+          SHOULD_CONTINUE='true'
         fi
+
+        echo "COMMIT_MESSAGE=$COMMIT_MESSAGE" >> $GITHUB_OUTPUT
+        echo "COMMITS_COUNT=$COMMITS_COUNT" >> $GITHUB_OUTPUT
+        echo "SHOULD_CONTINUE=$SHOULD_CONTINUE" >> $GITHUB_OUTPUT
+
+        echo Printing output vars...
+        echo Commit count: $COMMITS_COUNT
+        echo Commit message: $COMMIT_MESSAGE
+        echo Should continue: $SHOULD_CONTINUE
       shell: bash
     - name: Get Current Time
       if: steps.process_commits.outputs.SHOULD_CONTINUE == 'true'
@@ -59,7 +67,7 @@ runs:
       with:
         url: ${{ inputs.webhook-url }}
         method: 'POST'
-        data: '{"content":null,"embeds":[{"title":"${{github.repository}} [${{github.ref_name}}]","description":"${{steps.process_commits.outputs.COMMIT_MESSAGE}}","url":"${{github.event.compare}}","color":${{inputs.embed-color}},"footer":{"text":"${{steps.process_commits.outputs.COMMIT_COUNT}} new commit(s)","icon_url":"${{inputs.footer-icon}}"},"timestamp":"${{steps.get_time.outputs.time}}"}],"username":"${{github.actor}}","avatar_url":"${{fromJson(steps.get_avatar.outputs.response).avatar_url}}"}'
+        data: '{"content":null,"embeds":[{"title":"${{github.repository}} [${{github.ref_name}}]","description":"${{steps.process_commits.outputs.COMMIT_MESSAGE}}","url":"${{github.event.compare}}","color":${{inputs.embed-color}},"footer":{"text":"${{steps.process_commits.outputs.COMMITS_COUNT}} new commit(s)","icon_url":"${{inputs.footer-icon}}"},"timestamp":"${{steps.get_time.outputs.time}}"}],"username":"${{github.actor}}","avatar_url":"${{fromJson(steps.get_avatar.outputs.response).avatar_url}}"}'
 branding:
   icon: 'bell'
   color: 'blue'
