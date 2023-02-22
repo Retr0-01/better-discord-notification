@@ -7,12 +7,16 @@ inputs:
     required: true
   embed-color:
     description: "The embed's color."
-    require: true
+    require: false
     default: '0'
   footer-icon:
     description: 'A small icon to put on the footer. Required in order to show the commit message count.'
-    required: true
+    required: false
     default: 'https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png'
+  ignore-hidden:
+    description: 'Branches that contain the phase `hidden/` in them will be ignored.'
+    required: false
+    default: 'true'
 runs:
   using: "composite"
   steps:
@@ -21,8 +25,8 @@ runs:
       #   - Get and seperate all commit messages with a newline.
       #   - If the commit message are too big, cut it down.
       #   - Get how many commits we have through their unique commit ID.
-      # We also check to see if we have an actual commit in our hands, in case
-      # the workflow was triggered by another push event, e.g. pushing a branch. 
+      #   - Check if we have an actual commit push and not something else (e.g. branch push).
+      #   - Check if our current branch is marked as hidden and the user wants to hide hidden branches.
       id: process_commits
       run: |
         COMMIT_IDS="${{ join(github.event.commits.*.id, ', ') }}"
@@ -32,7 +36,7 @@ runs:
         echo "COMMIT_MESSAGE=${{ join(github.event.commits.*.message, '\n') }}" >> $GITHUB_OUTPUT
         echo "COMMIT_COUNT=$COMMITS_COUNT" >> $GITHUB_OUTPUT
 
-        if [ $COMMITS_COUNT == "0" ]; then
+        if [[ $COMMITS_COUNT == "0" ]] || [[ ${{ contains(github.ref_name, 'hidden/') }} && ${{ inputs.ignore-hidden }} == true ]]; then
           echo "SHOULD_CONTINUE=false" >> $GITHUB_OUTPUT
         else
           echo "SHOULD_CONTINUE=true" >> $GITHUB_OUTPUT
