@@ -5,6 +5,9 @@ inputs:
   webhook-url:
     description: 'The Discord webhook URL this notification will be send to.'
     required: true
+  message-content:
+    description: 'Message content for the Webhook Message.'
+    required: false
   embed-color:
     description: "The embed's color."
     require: false
@@ -62,7 +65,7 @@ runs:
       with:
         url: ${{ inputs.webhook-url }}
         method: 'POST'
-        data: '{"content":null,"embeds":[{"title":"${{github.repository}} [${{github.ref_name}}]","description":"${{steps.process_commits.outputs.COMMIT_MESSAGE}}","url":"${{github.event.compare}}","color":${{inputs.embed-color}},"footer":{"text":"${{steps.process_commits.outputs.COMMITS_COUNT}} new commit(s)","icon_url":"${{inputs.footer-icon}}"},"timestamp":"${{steps.get_time.outputs.time}}"}],"username":"${{github.actor}}","avatar_url":"${{fromJson(steps.get_avatar.outputs.response).avatar_url}}"}'
+        data: '{"content":${{inputs.message-content}},"embeds":[{"title":"${{github.repository}} [${{github.ref_name}}]","description":"${{steps.process_commits.outputs.COMMIT_MESSAGE}}","url":"${{github.event.compare}}","color":${{inputs.embed-color}},"footer":{"text":"${{steps.process_commits.outputs.COMMITS_COUNT}} new commit(s)","icon_url":"${{inputs.footer-icon}}"},"timestamp":"${{steps.get_time.outputs.time}}"}],"username":"${{github.actor}}","avatar_url":"${{fromJson(steps.get_avatar.outputs.response).avatar_url}}"}'
 branding:
   icon: 'bell'
   color: 'blue'
