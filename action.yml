@@ -10,7 +10,7 @@ inputs:
     required: false
   embed-color:
     description: "The embed's color."
-    require: false
+    required: false
     default: '0'
   footer-icon:
     description: 'A small icon to put on the footer. Required in order to show the commit message count.'
